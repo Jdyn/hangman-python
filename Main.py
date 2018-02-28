@@ -8,7 +8,6 @@ class Hangman:
         self.master = master
         self.master.title("HangMan")
         self.master.resizable(width=False, height=False)
-        self.initial_setup()
 
         self.gameState = 0
         self.secretWord = ""
@@ -16,18 +15,52 @@ class Hangman:
         self.totalGuesses = 6
         self.guessCount = 0
         self.progress = []
+        self.words = []
+
+        self.infoText = StringVar()
+        self.inputText = StringVar()
+        self.guessedLettersText = StringVar()
+        self.randomButtonText = StringVar()
+        self.guessesText = StringVar()
+        self.guessButtonText = StringVar()
+        self.WIDTH = 200
+        self.HEIGHT = 300
+
+        self.randomButton = Button(self.master, textvariable=self.randomButtonText, command=self.random_button)
+        self.randomButton.pack(fill=BOTH, side=TOP)
+
+        self.guessesLabel = Label(self.master, textvariable=self.guessesText)
+        self.guessesLabel.pack(fill=BOTH, side=TOP, anchor="e")
+
+        self.canvas = Canvas(self.master, width=self.WIDTH, height=self.HEIGHT, background='white')
+        self.canvas.pack(side=TOP)
+
+        self.guessButton = Button(self.master, textvariable=self.guessButtonText, command=self.guess_button)
+        self.guessButton.pack(fill=BOTH, side=BOTTOM)
+
+        self.input = Entry(self.master, textvariable=self.inputText)
+        self.input.pack(fill=BOTH, side=BOTTOM)
+        self.input.focus()
+
+        self.wordLabel = Label(self.master, textvariable=self.infoText)
+        self.wordLabel.pack(fill=BOTH, side=BOTTOM)
+
+        self.guessedLetters = Label(self.master, textvariable=self.guessedLettersText)
+        self.guessedLetters.pack(fill=BOTH, side=BOTTOM)
+
+        self.initial_setup()
 
     def guess_button(self):
         if self.gameState == 0:
             if len(self.inputText.get()) < 5:
                 self.input.delete(0, 'end')
-                self.guessButtonText.set("I Require longer word.")
+                self.guessButtonText.set("I Require a longer word.")
                 return
             else:
                 self.guessButtonText.set("Guess")
                 self.secretWord = self.inputText.get().lower()
                 self.input.delete(0, 'end')
-                for letter in self.secretWord:
+                for self.letter in self.secretWord:
                     self.progress.append('_ ')
                 self.dashes = "".join(self.progress)
                 self.infoText.set(self.dashes)
@@ -35,16 +68,25 @@ class Hangman:
 
         elif self.gameState == 1:
 
-            if len(self.inputText.get()) != 1:
+            if self.inputText.get() == self.secretWord:
+
+                self.randomButtonText.set("You Win!")
+                self.input.delete(0, 'end')
+                self.gameState = 2
+                return
+
+            elif len(self.inputText.get()) != 1:
 
                 self.input.delete(0, 'end')
-                self.randomButtonText.set("Enter a letter.")
+                self.randomButtonText.set("Enter a letter or the word.")
                 return
 
             if len(self.inputText.get()) == 1:
                 if self.guessCount < self.totalGuesses:
 
-                    if (self.inputText.get() in self.secretWord) and (self.inputText.get() not in self.guessedLettersText.get()):
+                    if (self.inputText.get() in self.secretWord) and \
+                            (self.inputText.get() not in self.guessedLettersText.get()):
+
                         guessed = self.guessedLettersText.get() + self.inputText.get() + ", "
                         self.guessedLettersText.set(guessed)
                         self.randomButtonText.set("Correct!")
@@ -57,7 +99,8 @@ class Hangman:
                             self.gameState = 2
                             return
 
-                    elif (self.inputText.get() not in self.secretWord) and (self.inputText.get() not in self.guessedLettersText.get()):
+                    elif (self.inputText.get() not in self.secretWord) and \
+                            (self.inputText.get() not in self.guessedLettersText.get()):
 
                         guessed = self.guessedLettersText.get() + self.inputText.get() + ", "
                         self.guessedLettersText.set(guessed)
@@ -94,11 +137,14 @@ class Hangman:
                           "algebra", "suitcase", "knives", "ninjas", "shampoo"
                           ]
             self.secretWord = random.choice(self.words).lower()
-            for letter in self.secretWord:
+            for self.letter in self.secretWord:
                 self.progress.append('_ ')
             self.dashes = "".join(self.progress)
             self.infoText.set(self.dashes)
             self.randomButtonText.set("Word Chosen!")
+            self.guessButtonText.set("Guess")
+            print(self.secretWord)
+            self.input.delete(0, 'end')
             self.gameState = 1
 
     def progress_updater(self, guess, the_word, progress):
@@ -113,36 +159,11 @@ class Hangman:
         return self.dashes
 
     def initial_setup(self):
-        self.gameState = 0
-        self.infoText = StringVar()
-        self.inputText = StringVar()
-        self.guessedLettersText = StringVar()
-        self.randomButtonText = StringVar()
-        self.guessesText = StringVar()
-        self.guessButtonText = StringVar()
-        self.WIDTH = 200
-        self.HEIGHT = 300
 
-        self.randomButton = Button(self.master, textvariable=self.randomButtonText, command=self.random_button)
-        self.randomButton.pack(fill=BOTH, side=TOP)
-        self.guessesLabel = Label(self.master, textvariable=self.guessesText).pack(fill=BOTH, side=TOP, anchor="e")
-        self.canvas = Canvas(self.master, width=self.WIDTH, height=self.HEIGHT, background='white')
-        self.canvas.pack(side=TOP)
-
-        self.canvas.create_line(0, self.HEIGHT, self.HEIGHT, self.HEIGHT, width=2.0)
-        self.canvas.create_line(self.WIDTH * 3/4, 100, self.WIDTH * 3/4, self.HEIGHT, width=2.0)
-        self.canvas.create_line(self.WIDTH * 3 / 4, 100, 75, 100, width=2.0)
-        self.canvas.create_line(75, 100, 75, 125, width=2.0)
-
-        self.guessButton = Button(self.master, textvariable=self.guessButtonText, command=self.guess_button)
-        self.guessButton.pack(fill=BOTH, side=BOTTOM)
-
-        self.input = Entry(self.master, textvariable=self.inputText)
-        self.input.pack(fill=BOTH, side=BOTTOM)
-        self.input.focus()
-
-        self.wordLabel = Label(self.master, textvariable=self.infoText).pack(fill=BOTH, side=BOTTOM)
-        self.guessedLetters = Label(self.master, textvariable=self.guessedLettersText).pack(fill=BOTH, side=BOTTOM)
+        self.canvas.create_line(self.WIDTH * 3/4, 100, self.WIDTH * 3/4, self.HEIGHT, width=2.0, fill='#303030')
+        self.canvas.create_line(0, self.HEIGHT, self.HEIGHT, self.HEIGHT, width=2.0, fill='#303030')
+        self.canvas.create_line(self.WIDTH * 3 / 4, 100, 75, 100, width=2.0, fill='#303030')
+        self.canvas.create_line(75, 100, 75, 125, width=2.0, fill='#303030')
 
         self.infoText.set("Type a word or randomize")
         self.randomButtonText.set("Randomize")
